@@ -2,3 +2,4 @@ node_modules/
 package-lock.json
 redis-6.0.10.tar.gz
 redis-6.0.10/
+dump.rdb

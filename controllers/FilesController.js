@@ -62,7 +62,11 @@ export default class FilesController {
       if (!fileData.localPath) return res.status(400).send({ error: 'write error' });
     }
 
+    const fileDataCp = { ...fileData };
+    delete fileData.data;
+
     const newFile = await FilesController.uploadFile(fileData);
+    newFile.data = fileDataCp.data;
 
     if (type === 'image') await fileQueue.add(newFile);
 

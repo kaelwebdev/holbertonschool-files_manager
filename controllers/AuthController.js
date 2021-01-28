@@ -17,7 +17,7 @@ export default class AuthController {
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
     if (sha1(password) !== user.password) {
-      return res.status(403).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: 'Unauthorized' });
     }
 
     const token = uuid();

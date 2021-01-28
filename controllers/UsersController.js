@@ -26,5 +26,5 @@ export const newUser = async (req, res) => {
 
   user = await createUser(email, sha1(password));
 
-  return res.json(user);
+  return res.status(201).send(user);
 };

@@ -64,8 +64,14 @@ export default class FilesController {
       return res.status(201).json(newFile);
     }
     const pathDir = process.env.FOLDER_PATH || '/tmp/files_manager';
-    fileData.localPath = await writeFile(uuid(), data, type, pathDir);
-    if (!fileData.localPath) return res.status(400).send({ error: 'write error' });
+    const filename = uuid();
+    const localPath = `${pathDir}/${filename}`;
+    fileData.localPath = localPath;
+    try {
+      await writeFile(filename, data, type, pathDir);
+    } catch (error) {
+      return res.status(400).send({ error: error.message });
+    }
     const newFile = await FilesController.uploadFile(fileData);
     newFile.data = data;
     if (type === 'image') await fileQueue.add(newFile);

@@ -25,9 +25,9 @@ fileQueue.process(async ({ data }, done) => {
 
   const pathDir = process.env.FOLDER_PATH || '/tmp/files_manager';
 
-  await writeFile(`${oldName}_100`, 'image', thumbNail100, pathDir);
-  await writeFile(`${oldName}_250`, 'image', thumbNail250, pathDir);
-  await writeFile(`${oldName}_500`, 'image', thumbNail500, pathDir);
+  await writeFile(`${oldName}_100`, thumbNail100, 'image', pathDir);
+  await writeFile(`${oldName}_250`, thumbNail250, 'image', pathDir);
+  await writeFile(`${oldName}_500`, thumbNail500, 'image', pathDir);
 });
 
 export default fileQueue;

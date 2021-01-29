@@ -2,6 +2,9 @@ import Queue from 'bull';
 import imageThumbnail from 'image-thumbnail';
 
 import writeFile from './utils/writeFile';
+import DBClient from './utils/db';
+
+const { ObjectId } = require('mongodb');
 
 const fileQueue = new Queue('image transcoding');
 fileQueue.process(async ({ data }, done) => {
@@ -12,6 +15,9 @@ fileQueue.process(async ({ data }, done) => {
 
   if (!userId) done(Error('Missing userId'));
   if (!_id) done(Error('Missing fileId'));
+
+  const fileDocument = await DBClient.db.collection('files').findOne({ _id: ObjectId(_id), userId: ObjectId(userId) });
+  if (!fileDocument) done(Error('File not found'));
 
   const thumbNail100 = await imageThumbnail(data.data, { width: 100 });
   const thumbNail250 = await imageThumbnail(data.data, { width: 250 });

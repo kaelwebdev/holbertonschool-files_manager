@@ -53,28 +53,27 @@ export default class FilesController {
       parentId,
       isPublic,
     };
-
-    const pathDir = process.env.FOLDER_PATH || '/tmp/files_manager';
-
-    if (type !== 'folder') {
-      fileData.data = data;
+    if (type === 'folder') {
+      const tmpIsPublic = fileData.isPublic;
+      delete fileData.data;
+      delete fileData.isPublic;
+      const newFile = await FilesController.uploadFile(fileData);
+      newFile.id = newFile._id;
+      delete newFile._id;
+      newFile.isPublic = tmpIsPublic;
+      return res.status(201).json(newFile);
+    } else {
+      const pathDir = process.env.FOLDER_PATH || '/tmp/files_manager';
       fileData.localPath = await writeFile(uuid(), data, type, pathDir);
       if (!fileData.localPath) return res.status(400).send({ error: 'write error' });
+      const newFile = await FilesController.uploadFile(fileData);
+      newFile.data = data;
+      if (type === 'image') await fileQueue.add(newFile);
+      newFile.id = newFile._id;
+      delete newFile._id;
+      delete newFile.data;
+      delete newFile.localPath;
+      return res.status(201).json(newFile);
     }
-
-    const fileDataCp = { ...fileData };
-    delete fileData.data;
-
-    const newFile = await FilesController.uploadFile(fileData);
-    newFile.data = fileDataCp.data;
-
-    if (type === 'image') await fileQueue.add(newFile);
-
-    newFile.id = newFile._id;
-    delete newFile._id;
-    delete newFile.data;
-    delete newFile.localPath;
-
-    return res.status(201).json(newFile);
   }
 }

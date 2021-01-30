@@ -81,4 +81,59 @@ export default class FilesController {
     delete newFile.localPath;
     return res.status(201).json(newFile);
   }
+
+  static async getShow(req, res) {
+    const { id } = req.params;
+    const token = req.header('X-Token');
+    if (!token) return res.status(401).send({ error: 'Unauthorized' });
+    const userId = await redisClient.get(`auth_${token}`);
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+    const user = await dbClient.db.collection('users').findOne({ _id: ObjectID(userId) });
+    if (!user) return res.status(401).send({ error: 'Unauthorized' });
+    const file = await dbClient.db.collection('files').findOne({ _id: ObjectID(id), userId });
+    if (!file) return res.status(404).json({ error: 'Not found' });
+
+    file.id = file._id;
+    delete file._id;
+    delete file.data;
+    delete file.localPath;
+
+    return res.json(file);
+  }
+
+  static async aggregateFiles(userId, parentId, page = 1) {
+    const user = { userId };
+    if (parentId && parentId !== undefined) user.parentId = parentId;
+
+    const cursor = await dbClient.db.collection('files').aggregate([
+      { $match: user },
+      { $skip: (page - 1) * 20 },
+      { $limit: 20 },
+    ]).toArray();
+    const files = [];
+    cursor.forEach(({
+      _id, userId, name, type, isPublic, parentId,
+    }) => {
+      files.push({
+        id: _id, userId, name, type, isPublic, parentId,
+      });
+    });
+    return files;
+  }
+
+  static async getIndex(req, res) {
+    const token = req.header('X-Token');
+    if (!token) return res.status(401).send({ error: 'Unauthorized' });
+
+    const userId = await redisClient.get(`auth_${token}`);
+    if (!userId) return res.status(401).send({ error: 'Unauthorized' });
+
+    const user = await dbClient.db.collection('users').findOne({ _id: ObjectID(userId) });
+    if (!user) return res.status(401).send({ error: 'Unauthorized' });
+
+    const { parentId, page } = req.query;
+
+    const paginate = await FilesController.aggregateFiles(userId, parentId, page);
+    return res.json(paginate);
+  }
 }

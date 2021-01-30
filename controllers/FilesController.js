@@ -35,7 +35,7 @@ export default class FilesController {
       return res.status(400).json({ error: 'Missing type' });
     }
     if (!data && type !== 'folder') {
-      return res.status(400).json({ error: 'Missing Data' });
+      return res.status(400).json({ error: 'Missing data' });
     }
     if (parentId) {
       const parent = await FilesController.findFile({ _id: ObjectID(parentId) });

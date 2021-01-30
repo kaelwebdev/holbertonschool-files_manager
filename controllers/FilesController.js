@@ -101,7 +101,7 @@ export default class FilesController {
     return res.json(file);
   }
 
-  static async aggregateFiles(userId, parentId, page = 1) {
+  static async aggregateFiles(userId, parentId = 0, page = 1) {
     const user = { userId };
     if (parentId && parentId !== undefined) user.parentId = parentId;
 

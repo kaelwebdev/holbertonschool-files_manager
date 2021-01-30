@@ -101,15 +101,14 @@ export default class FilesController {
     return res.json(file);
   }
 
-  static async aggregateFiles(userId, parentId = 0, page = 1) {
-    const user = { userId };
-    if (parentId && parentId !== undefined) user.parentId = parentId;
+  static async aggregateFiles(userId, parentId = 0, page = 0) {
+    const qMatch = { $and: [{ parentId }] };
+    let qData = [{ $match: qMatch }, { $skip: page * 20 }, { $limit: 20 }];
+    if (parentId === 0) qData = [{ $skip: page * 20 }, { $limit: 20 }];
 
-    const cursor = await dbClient.db.collection('files').aggregate([
-      { $match: user },
-      { $skip: (page - 1) * 20 },
-      { $limit: 20 },
-    ]).toArray();
+    const cursor = await dbClient.db.collection('files').aggregate(
+      qData,
+    ).toArray();
     const files = [];
     cursor.forEach(({
       _id, userId, name, type, isPublic, parentId,

@@ -55,8 +55,8 @@ export default class FilesController {
       userId,
       name,
       type,
-      parentId,
       isPublic,
+      parentId,
     };
     if (type === 'folder') {
       const tmpIsPublic = fileData.isPublic;
@@ -155,7 +155,7 @@ export default class FilesController {
     if (!file) return res.status(404).json({ error: 'Not found' });
 
     file = await FilesController.updateFile({ _id: ObjectID(id) }, { isPublic: true });
-    file.id = file._id;
+    file = { id, ...file };
     delete file._id;
     delete file.data;
     delete file.localPath;
@@ -177,7 +177,7 @@ export default class FilesController {
     if (!file) return res.status(404).json({ error: 'Not found' });
 
     file = await FilesController.updateFile({ _id: ObjectID(id) }, { isPublic: false });
-    file.id = file._id;
+    file = { id, ...file };
     delete file._id;
     delete file.data;
     delete file.localPath;

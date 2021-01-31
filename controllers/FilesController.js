@@ -16,6 +16,11 @@ export default class FilesController {
     return dbClient.db.collection('files').findOne(data);
   }
 
+  static async updateFile(idFile, change) {
+    await dbClient.db.collection('files').updateOne(idFile, { $set: change });
+    return dbClient.db.collection('files').findOne(idFile);
+  }
+
   static async newFile(req, res) {
     const token = req.header('X-Token');
     const userId = await redisClient.get(`auth_${token}`);
@@ -135,4 +140,48 @@ export default class FilesController {
     const paginate = await FilesController.aggregateFiles(userId, parentId, page);
     return res.json(paginate);
   }
+
+  static async putPublish (req, res) {
+    const token = req.header('X-Token');
+    const { id } = req.params;
+
+    const userId = await redisClient.get(`auth_${token}`);
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const user = await dbClient.db.collection('users').findOne({ _id: ObjectID(userId) });
+    if (!user) return res.status(401).send({ error: 'Unauthorized' });
+
+    let file = await dbClient.db.collection('files').findOne({ _id: ObjectID(id), userId });
+    if (!file) return res.status(404).json({ error: 'Not found' });
+
+    file = await FilesController.updateFile({ _id: ObjectID(id) }, { isPublic: true });
+    file.id = file._id;
+    delete file._id;
+    delete file.data;
+    delete file.localPath;
+
+    return res.json(file);
+  };
+
+  static async putUnPublish (req, res) {
+    const token = req.header('X-Token');
+    const { id } = req.params;
+
+    const userId = await redisClient.get(`auth_${token}`);
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const user = await dbClient.db.collection('users').findOne({ _id: ObjectID(userId) });
+    if (!user) return res.status(401).send({ error: 'Unauthorized' });
+
+    let file = await dbClient.db.collection('files').findOne({ _id: ObjectID(id), userId });
+    if (!file) return res.status(404).json({ error: 'Not found' });
+
+    file = await FilesController.updateFile({ _id: ObjectID(id) }, { isPublic: false });
+    file.id = file._id;
+    delete file._id;
+    delete file.data;
+    delete file.localPath;
+
+    return res.json(file);
+  };
 }

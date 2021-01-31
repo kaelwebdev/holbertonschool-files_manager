@@ -141,7 +141,7 @@ export default class FilesController {
     return res.json(paginate);
   }
 
-  static async putPublish (req, res) {
+  static async putPublish(req, res) {
     const token = req.header('X-Token');
     const { id } = req.params;
 
@@ -161,9 +161,9 @@ export default class FilesController {
     delete file.localPath;
 
     return res.json(file);
-  };
+  }
 
-  static async putUnPublish (req, res) {
+  static async putUnPublish(req, res) {
     const token = req.header('X-Token');
     const { id } = req.params;
 
@@ -183,5 +183,5 @@ export default class FilesController {
     delete file.localPath;
 
     return res.json(file);
-  };
+  }
 }

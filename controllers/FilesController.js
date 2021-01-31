@@ -142,8 +142,10 @@ export default class FilesController {
   }
 
   static async putPublish(req, res) {
-    const token = req.header('X-Token');
     const { id } = req.params;
+
+    const token = req.header('X-Token') || null;
+    if (!token) return res.status(401).send({ error: 'Unauthorized' });
 
     const userId = await redisClient.get(`auth_${token}`);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });

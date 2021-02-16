@@ -1,3 +1,5 @@
+<img src="https://drive.google.com/uc?export=view&id=1Xa_-PzMLHvBvpEBg36hJhgYjBc5n7Fc6" alt="screenshot holberton panel" width="300"/>
+
 # 0x15. Files manager
 In this project the program does the following:
 * User authentication via token
@@ -30,8 +32,18 @@ What you should learn from this project:
 
 ---
 
+# **Requirements**
+* I suggest ubuntu 18.04 because with this operating system this project was tested. Although you can try using another operating system like windows, you may be able to get it to work.
+* MongoDB shell version ^4.2.9
+* Redis ^6.0.10 (redis server ^4.0.9)
+
+
 # **Use**
 1. Verify that the mongodb and redis databases are running in the background.
+* the following command might work to make your Mongo database active as a service.
+```
+service mongod start
+```
 * For this project we are using Redis version 6.0.10. https://redis.io/download
 ```
 $ wget http://download.redis.io/releases/redis-6.0.10.tar.gz
@@ -39,6 +51,14 @@ $ tar xzf redis-6.0.10.tar.gz
 $ cd redis-6.0.10
 $ make
 ```
+
+* the following command might work to make your Redis database active as a service.
+```
+redis-server &
+```
+
+then press enter
+
 2. Start application
 ```
 npm run start-server
